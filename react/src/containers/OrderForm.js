@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import RadioButton from '../components/RadioButton';
 import TextField from '../components/TextField';
 
 class OrderForm extends Component {
@@ -6,7 +7,7 @@ class OrderForm extends Component {
     super(props)
     this.state = {
       instructions: '',
-      size: '',
+      selectedSize: null,
       toppings: ''
     }
     this.handleClearForm = this.handleClearForm.bind(this);
@@ -14,22 +15,27 @@ class OrderForm extends Component {
     this.instructionStateChanger = this.instructionStateChanger.bind(this);
     this.sizeStateChanger = this.sizeStateChanger.bind(this);
     this.toppingsStateChanger = this.toppingsStateChanger.bind(this);
+    this.validateTextEntry = this.validateTextEntry.bind(this);
   }
 
   handleClearForm(event) {
     event.preventDefault();
-    this.setState({ instructions: '', size: '', toppings: '' })
+    this.setState({ instructions: '', selectedSize: null, toppings: '' })
   }
 
   handleFormSubmit(event) {
     event.preventDefault();
-    let formPayload = {
-      "instructions": this.state.instructions,
-      "size": this.state.size,
-      "toppings": this.state.toppings
+    if (this.validateTextEntry(this.state.toppings) && this.validateTextEntry(this.state.instructions)) {
+      let formPayload = {
+        instructions: this.state.instructions,
+        size: this.state.selectedSize,
+        toppings: this.state.toppings
+      }
+      this.props.handlePizzaOrder(formPayload);
+      this.handleClearForm(event);
+    } else {
+      console.log('NO.')
     }
-    this.props.handlePizzaOrder(formPayload);
-    this.handleClearForm(event);
   }
 
   instructionStateChanger(event) {
@@ -37,24 +43,34 @@ class OrderForm extends Component {
   }
 
   sizeStateChanger(event) {
-    this.setState({ size: event.target.value })
+    this.setState({ selectedSize: event.target.value })
   }
 
   toppingsStateChanger(event) {
     this.setState({ toppings: event.target.value })
   }
 
+  validateTextEntry(input) {
+    return (input != '' && input != null)
+  }
+
   render() {
+    let sizes = ['Small', 'Medium', 'Large']
+    let sizeRadioButtons = sizes.map(size => {
+      return(
+        <RadioButton key={size} name={size} label={size} value={size} handler={this.sizeStateChanger} selectedSize={this.state.selectedSize}/>
+      )
+    })
+
+
     return (
       <div className='callout secondary'>
         <h1>Pizza Order Form</h1>
         <form onSubmit={this.handleFormSubmit}>
-          <TextField
-            handler={this.sizeStateChanger}
-            label='Select Size'
-            name='size'
-            value={this.state.size}
-          />
+          <fieldset>
+            <legend>Select Size</legend>
+            {sizeRadioButtons}
+          </fieldset>
           <TextField
             handler={this.toppingsStateChanger}
             label='Select Toppings'

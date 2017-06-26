@@ -18,7 +18,7 @@ post "/api/v1/pizzas" do
   current_pizzas = JSON.parse(File.read("data/pizzas.json"))
 
   pizza = JSON.parse(request.body.read)
-  pizza["id"] = current_pizzas.count
+  pizza["id"] = current_pizzas["pizzas"].count + 1
 
   current_pizzas["pizzas"] << pizza
   File.write("data/pizzas.json", JSON.pretty_generate(current_pizzas))
